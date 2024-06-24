@@ -24,7 +24,7 @@ Things to do:
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.5.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.8.0)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.71)
 
@@ -67,27 +67,15 @@ The following resources are used by this module:
 
 The following input variables are required:
 
-### <a name="input_default_location"></a> [default\_location](#input\_default\_location)
+### <a name="input_location"></a> [location](#input\_location)
 
-Description: The default location for resources in this management group. Used for policy managed identities.
-
-Type: `string`
-
-### <a name="input_identity"></a> [identity](#input\_identity)
-
-Description: TODO
-
-Type: `any`
-
-### <a name="input_name"></a> [name](#input\_name)
-
-Description: TODO
+Description: (Required) The Azure Region where the Policy Assignment should exist. Changing this forces a new Policy Assignment to be created.
 
 Type: `string`
 
 ### <a name="input_policy_definition_id"></a> [policy\_definition\_id](#input\_policy\_definition\_id)
 
-Description: TODO
+Description: (Required) The ID of the Policy Definition or Policy Definition Set. Changing this forces a new Policy Assignment to be created.
 
 Type: `string`
 
@@ -123,7 +111,7 @@ Default: `{}`
 
 ### <a name="input_description"></a> [description](#input\_description)
 
-Description: TODO
+Description: (Optional) A description which should be used for this Policy Assignment.
 
 Type: `string`
 
@@ -131,7 +119,7 @@ Default: `""`
 
 ### <a name="input_display_name"></a> [display\_name](#input\_display\_name)
 
-Description: TODO
+Description: (Optional) The Display Name for this Policy Assignment.
 
 Type: `string`
 
@@ -149,23 +137,23 @@ Default: `true`
 
 ### <a name="input_enforce"></a> [enforce](#input\_enforce)
 
-Description: TODO
+Description: (Optional) Specifies if this Policy should be enforced or not? Options are `Default` and `DoNotEnforce`.
 
 Type: `string`
 
 Default: `"Default"`
 
-### <a name="input_enforcement_mode"></a> [enforcement\_mode](#input\_enforcement\_mode)
-
-Description: TODO
-
-Type: `string`
-
-Default: `null`
-
 ### <a name="input_exemptions"></a> [exemptions](#input\_exemptions)
 
-Description: n/a
+Description:   - `name` - (Required) The name of the Policy Exemption. Changing this forces a new resource to be created.
+- `resource_id` - (Required) The Resource ID where the Policy Exemption should be applied. Changing this forces a new resource to be created.
+- `exemption_category` - (Required) The category of this policy exemption. Possible values are `Waiver` and `Mitigated`.
+- `policy_assignment_id` - (Required) The ID of the Policy Assignment to be exempted at the specified Scope. Changing this forces a new resource to be created.
+- `description` - (Optional) A description to use for this Policy Exemption.
+- `display_name` - (Optional) A friendly display name to use for this Policy Exemption.
+- `expires_on` - (Optional) The expiration date and time in UTC ISO 8601 format of this policy exemption.
+- `policy_definition_reference_ids` - (Optional) The policy definition reference ID list when the associated policy assignment is an assignment of a policy set definition.
+- `metadata` - (Optional) The metadata for this policy exemption. This is a JSON string representing additional metadata that should be stored with the policy exemption.
 
 Type:
 
@@ -182,25 +170,24 @@ list(object({
 
 Default: `[]`
 
-### <a name="input_identity_ids"></a> [identity\_ids](#input\_identity\_ids)
+### <a name="input_identity"></a> [identity](#input\_identity)
 
-Description: TODO
+Description:   (Optional) An identity block as defined below.
+   - `type` - (Required) SystemAssigned or UserAssigned.
 
-Type: `list(string)`
+Type:
 
-Default: `[]`
-
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: TODO
-
-Type: `string`
+```hcl
+object({
+    type = string
+  })
+```
 
 Default: `null`
 
 ### <a name="input_management_group_ids"></a> [management\_group\_ids](#input\_management\_group\_ids)
 
-Description: TODO
+Description: (Optional) The list of ids of the Management Groups where this should be applied. Changing this forces a new Policy Assignment to be created.
 
 Type: `list(string)`
 
@@ -208,15 +195,25 @@ Default: `[]`
 
 ### <a name="input_metadata"></a> [metadata](#input\_metadata)
 
-Description: TODO
+Description: (Optional) A mapping of any Metadata for this Policy.
 
 Type: `map(any)`
 
 Default: `{}`
 
+### <a name="input_name"></a> [name](#input\_name)
+
+Description: (Optional) The Display Name for this Policy Assignment.
+
+Type: `string`
+
+Default: `""`
+
 ### <a name="input_non_compliance_messages"></a> [non\_compliance\_messages](#input\_non\_compliance\_messages)
 
-Description: TODO
+Description:   (Optional) A set of non compliance message objects to use for the policy assignment. Each object has the following properties:
+  - `message` - (Required) The non compliance message.
+  - `policy_definition_reference_id` - (Optional) The reference id of the policy definition to use for the non compliance message.
 
 Type:
 
@@ -231,7 +228,7 @@ Default: `[]`
 
 ### <a name="input_not_scopes"></a> [not\_scopes](#input\_not\_scopes)
 
-Description: TODO
+Description: (Optional) Specifies a list of Resource Scopes (for example a Subscription, or a Resource Group) within this Management Group which are excluded from this Policy.
 
 Type: `list(string)`
 
@@ -239,7 +236,13 @@ Default: `[]`
 
 ### <a name="input_overrides"></a> [overrides](#input\_overrides)
 
-Description: TODO
+Description: (Optional) A list of override objects to use for the policy assignment. Each object has the following properties:
+  - `kind` - (Required) The kind of the override.
+  - `value` - (Required) The value of the override. Supported values are policy effects: <https://learn.microsoft.com/azure/governance/policy/concepts/effects>.
+  - `selectors` - (Optional) A list of selector objects to use for the override. Each object has the following properties:
+    - `kind` - (Required) The kind of the selector.
+    - `in` - (Optional) A set of strings to include in the selector.
+    - `not_in` - (Optional) A set of strings to exclude from the selector.
 
 Type:
 
@@ -259,15 +262,15 @@ Default: `[]`
 
 ### <a name="input_parameters"></a> [parameters](#input\_parameters)
 
-Description: TODO
+Description: (Optional) A mapping of any Parameters for this Policy.
 
-Type: `any`
+Type: `map(any)`
 
 Default: `null`
 
 ### <a name="input_resource_group_ids"></a> [resource\_group\_ids](#input\_resource\_group\_ids)
 
-Description: TODO
+Description: (Optional) The list of ids of the resource groups where this should be applied. Changing this forces a new Policy Assignment to be created.
 
 Type: `list(string)`
 
@@ -275,7 +278,7 @@ Default: `[]`
 
 ### <a name="input_resource_ids"></a> [resource\_ids](#input\_resource\_ids)
 
-Description: n/a
+Description: (Optional) The list of ids of the resources where this should be applied. Changing this forces a new Policy Assignment to be created.
 
 Type: `list(string)`
 
@@ -283,7 +286,12 @@ Default: `[]`
 
 ### <a name="input_resource_selectors"></a> [resource\_selectors](#input\_resource\_selectors)
 
-Description: TODO
+Description: (Optional) A list of resource selector objects to use for the policy assignment. Each object has the following properties:
+  - `name` - (Required) The name of the resource selector.
+  - `selectors` - (Optional) A list of selector objects to use for the resource selector. Each object has the following properties:
+    - `kind` - (Required) The kind of the selector. Allowed values are: `resourceLocation`, `resourceType`, `resourceWithoutLocation`. `resourceWithoutLocation` cannot be used in the same resource selector as `resourceLocation`.
+    - `in` - (Optional) A set of strings to include in the selector.
+    - `not_in` - (Optional) A set of strings to exclude from the selector.
 
 Type:
 
@@ -302,15 +310,40 @@ Default: `[]`
 
 ### <a name="input_role_assignments"></a> [role\_assignments](#input\_role\_assignments)
 
-Description: TODO
+Description:   A map of role assignments to create on the <RESOURCE>. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
 
-Type: `list(any)`
+  - `role_definition_id_or_name` - The ID or name of the role definition to assign to the principal.
+  - `principal_id` - The ID of the principal to assign the role to.
+  - `description` - (Optional) The description of the role assignment.
+  - `skip_service_principal_aad_check` - (Optional) If set to true, skips the Azure Active Directory check for the service principal in the tenant. Defaults to false.
+  - `condition` - (Optional) The condition which will be used to scope the role assignment.
+  - `condition_version` - (Optional) The version of the condition syntax. Leave as `null` if you are not using a condition, if you are then valid values are '2.0'.
+  - `delegated_managed_identity_resource_id` - (Optional) The delegated Azure Resource Id which contains a Managed Identity. Changing this forces a new resource to be created. This field is only used in cross-tenant scenario.
+  - `principal_type` - (Optional) The type of the `principal_id`. Possible values are `User`, `Group` and `ServicePrincipal`. It is necessary to explicitly set this attribute when creating role assignments if the principal creating the assignment is constrained by ABAC rules that filters on the PrincipalType attribute.
 
-Default: `[]`
+  > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
+
+Type:
+
+```hcl
+map(object({
+    role_definition_id_or_name = string
+    # principal_id                           = optional(string, null) # TODO the principal_id is not known before policy assignment
+    principal_id                           = string
+    description                            = optional(string, null)
+    skip_service_principal_aad_check       = optional(bool, false)
+    condition                              = optional(string, null)
+    condition_version                      = optional(string, null)
+    delegated_managed_identity_resource_id = optional(string, null)
+    principal_type                         = optional(string, null)
+  }))
+```
+
+Default: `{}`
 
 ### <a name="input_subscription_ids"></a> [subscription\_ids](#input\_subscription\_ids)
 
-Description: TODO
+Description: (Optional) The list of ids of the subscriptions where this should be applied. Changing this forces a new Policy Assignment to be created.
 
 Type: `list(string)`
 
@@ -324,9 +357,17 @@ The following outputs are exported:
 
 Description: This is the full output for the policy assignment for the management group.
 
+### <a name="output_resource"></a> [resource](#output\_resource)
+
+Description: This is the resource of the policy assignment.
+
 ### <a name="output_resource_group_policy_assignment"></a> [resource\_group\_policy\_assignment](#output\_resource\_group\_policy\_assignment)
 
 Description: This is the full output for the policy assignment for the resource group.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: This is the resource id of the policy assignment.
 
 ### <a name="output_resource_policy_assignment"></a> [resource\_policy\_assignment](#output\_resource\_policy\_assignment)
 

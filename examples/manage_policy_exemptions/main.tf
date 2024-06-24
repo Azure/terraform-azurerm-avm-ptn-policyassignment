@@ -55,11 +55,9 @@ data "azurerm_virtual_network" "example" {
 
 data "azurerm_client_config" "current" {}
 
-module "test_management_group" {
+module "manage_policy_exemptions" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  default_location = module.regions.regions[random_integer.region_index.result].name
-
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
@@ -71,11 +69,12 @@ module "test_management_group" {
   location             = module.regions.regions[random_integer.region_index.result].name
   identity             = { "type" = "SystemAssigned" }
 
-  role_assignments = [
-    {
-      "role_definition_name" : "Contributor"
+  role_assignments = {
+    contrib = {
+      "role_definition_id_or_name" : "Contributor"
+      principal_id : "ignored"
     }
-  ]
+  }
   exemptions = [
     {
       resource_id : data.azurerm_virtual_network.example.id

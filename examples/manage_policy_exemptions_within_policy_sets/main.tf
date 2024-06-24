@@ -1,8 +1,5 @@
 terraform {
   required_version = "~> v1.8.0"
-  # required_version = "~> v1.9.0-alpha20240501"
-  # required_version = "~> v1.9.0"
-  # experiments      = [template_string_func]
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -46,11 +43,9 @@ data "azurerm_management_group" "root" {
 
 data "azurerm_client_config" "current" {}
 
-module "test_management_group" {
+module "manage_policy_exemptions_within_policy_sets" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  default_location = module.regions.regions[random_integer.region_index.result].name
-
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policySetDefinitions/f5bf694c-cca7-4033-b883-3a23327d5485"

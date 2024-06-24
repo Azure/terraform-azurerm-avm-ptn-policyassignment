@@ -1,22 +1,12 @@
-variable "default_location" {
+variable "location" {
   type        = string
-  description = <<DESCRIPTION
-The default location for resources in this management group. Used for policy managed identities.
-DESCRIPTION
-}
-
-variable "identity" {
-  description = "TODO"
-}
-
-variable "name" {
-  type        = string
-  description = "TODO"
+  description = "(Required) The Azure Region where the Policy Assignment should exist. Changing this forces a new Policy Assignment to be created."
+  nullable    = false
 }
 
 variable "policy_definition_id" {
   type        = string
-  description = "TODO"
+  description = "(Required) The ID of the Policy Definition or Policy Definition Set. Changing this forces a new Policy Assignment to be created."
 }
 
 variable "delays" {
@@ -44,13 +34,13 @@ DESCRIPTION
 variable "description" {
   type        = string
   default     = ""
-  description = "TODO"
+  description = "(Optional) A description which should be used for this Policy Assignment."
 }
 
 variable "display_name" {
   type        = string
   default     = ""
-  description = "TODO"
+  description = "(Optional) The Display Name for this Policy Assignment."
 }
 
 variable "enable_telemetry" {
@@ -66,13 +56,13 @@ DESCRIPTION
 variable "enforce" {
   type        = string
   default     = "Default"
-  description = "TODO"
-}
+  description = "(Optional) Specifies if this Policy should be enforced or not? Options are `Default` and `DoNotEnforce`."
 
-variable "enforcement_mode" {
-  type        = string
-  default     = null
-  description = "TODO"
+  validation {
+    condition     = contains(["Default", "DoNotEnforce"], var.enforce)
+    error_message = "enforce must be one of `Default` or `DoNotEnforce`."
+
+  }
 }
 
 variable "exemptions" {
@@ -84,7 +74,18 @@ variable "exemptions" {
     policy_definition_reference_ids = optional(list(string))
     exemption_category              = string
   }))
-  default = []
+  default     = []
+  description = <<DESCRIPTION
+  - `name` - (Required) The name of the Policy Exemption. Changing this forces a new resource to be created.
+- `resource_id` - (Required) The Resource ID where the Policy Exemption should be applied. Changing this forces a new resource to be created.
+- `exemption_category` - (Required) The category of this policy exemption. Possible values are `Waiver` and `Mitigated`.
+- `policy_assignment_id` - (Required) The ID of the Policy Assignment to be exempted at the specified Scope. Changing this forces a new resource to be created.
+- `description` - (Optional) A description to use for this Policy Exemption.
+- `display_name` - (Optional) A friendly display name to use for this Policy Exemption.
+- `expires_on` - (Optional) The expiration date and time in UTC ISO 8601 format of this policy exemption.
+- `policy_definition_reference_ids` - (Optional) The policy definition reference ID list when the associated policy assignment is an assignment of a policy set definition.
+- `metadata` - (Optional) The metadata for this policy exemption. This is a JSON string representing additional metadata that should be stored with the policy exemption.
+DESCRIPTION
 
   validation {
     condition     = alltrue([for e in var.exemptions : e.resource_id != null || e.subscription_id != null || e.management_group_id != null || e.resource_group_id != null])
@@ -96,28 +97,33 @@ variable "exemptions" {
   }
 }
 
-variable "identity_ids" {
-  type        = list(string)
-  default     = []
-  description = "TODO"
-}
-
-variable "location" {
-  type        = string
+variable "identity" {
+  type = object({
+    type = string
+  })
   default     = null
-  description = "TODO"
+  description = <<DESCRIPTION
+  (Optional) An identity block as defined below.
+   - `type` - (Required) SystemAssigned or UserAssigned.
+  DESCRIPTION
 }
 
 variable "management_group_ids" {
   type        = list(string)
   default     = []
-  description = "TODO"
+  description = "(Optional) The list of ids of the Management Groups where this should be applied. Changing this forces a new Policy Assignment to be created."
 }
 
 variable "metadata" {
   type        = map(any)
   default     = {}
-  description = "TODO"
+  description = "(Optional) A mapping of any Metadata for this Policy."
+}
+
+variable "name" {
+  type        = string
+  default     = ""
+  description = "(Optional) The Display Name for this Policy Assignment."
 }
 
 variable "non_compliance_messages" {
@@ -126,13 +132,17 @@ variable "non_compliance_messages" {
     policy_definition_reference_id = optional(string, null)
   }))
   default     = []
-  description = "TODO"
+  description = <<DESCRIPTION
+  (Optional) A set of non compliance message objects to use for the policy assignment. Each object has the following properties:
+  - `message` - (Required) The non compliance message.
+  - `policy_definition_reference_id` - (Optional) The reference id of the policy definition to use for the non compliance message.
+    DESCRIPTION
 }
 
 variable "not_scopes" {
   type        = list(string)
   default     = []
-  description = "TODO"
+  description = "(Optional) Specifies a list of Resource Scopes (for example a Subscription, or a Resource Group) within this Management Group which are excluded from this Policy."
 }
 
 variable "overrides" {
@@ -146,25 +156,34 @@ variable "overrides" {
     })), [])
   }))
   default     = []
-  description = "TODO"
+  description = <<DESCRIPTION
+(Optional) A list of override objects to use for the policy assignment. Each object has the following properties:
+  - `kind` - (Required) The kind of the override.
+  - `value` - (Required) The value of the override. Supported values are policy effects: <https://learn.microsoft.com/azure/governance/policy/concepts/effects>.
+  - `selectors` - (Optional) A list of selector objects to use for the override. Each object has the following properties:
+    - `kind` - (Required) The kind of the selector.
+    - `in` - (Optional) A set of strings to include in the selector.
+    - `not_in` - (Optional) A set of strings to exclude from the selector.
+
+ DESCRIPTION
 }
 
 variable "parameters" {
-  # type        = map(any)
+  type        = map(any)
   default     = null
-  description = "TODO"
+  description = "(Optional) A mapping of any Parameters for this Policy."
 }
 
 variable "resource_group_ids" {
   type        = list(string)
   default     = []
-  description = "TODO"
+  description = "(Optional) The list of ids of the resource groups where this should be applied. Changing this forces a new Policy Assignment to be created."
 }
 
 variable "resource_ids" {
   type        = list(string)
   default     = []
-  description = ""
+  description = "(Optional) The list of ids of the resources where this should be applied. Changing this forces a new Policy Assignment to be created."
 }
 
 variable "resource_selectors" {
@@ -177,17 +196,48 @@ variable "resource_selectors" {
     })), [])
   }))
   default     = []
-  description = "TODO"
+  description = <<DESCRIPTION
+(Optional) A list of resource selector objects to use for the policy assignment. Each object has the following properties:
+  - `name` - (Required) The name of the resource selector.
+  - `selectors` - (Optional) A list of selector objects to use for the resource selector. Each object has the following properties:
+    - `kind` - (Required) The kind of the selector. Allowed values are: `resourceLocation`, `resourceType`, `resourceWithoutLocation`. `resourceWithoutLocation` cannot be used in the same resource selector as `resourceLocation`.
+    - `in` - (Optional) A set of strings to include in the selector.
+    - `not_in` - (Optional) A set of strings to exclude from the selector.
+  DESCRIPTION
 }
 
 variable "role_assignments" {
-  type        = list(any)
-  default     = []
-  description = "TODO"
+  type = map(object({
+    role_definition_id_or_name = string
+    # principal_id                           = optional(string, null) # TODO the principal_id is not known before policy assignment
+    principal_id                           = string
+    description                            = optional(string, null)
+    skip_service_principal_aad_check       = optional(bool, false)
+    condition                              = optional(string, null)
+    condition_version                      = optional(string, null)
+    delegated_managed_identity_resource_id = optional(string, null)
+    principal_type                         = optional(string, null)
+  }))
+  default     = {}
+  description = <<DESCRIPTION
+  A map of role assignments to create on the <RESOURCE>. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+  
+  - `role_definition_id_or_name` - The ID or name of the role definition to assign to the principal.
+  - `principal_id` - The ID of the principal to assign the role to.
+  - `description` - (Optional) The description of the role assignment.
+  - `skip_service_principal_aad_check` - (Optional) If set to true, skips the Azure Active Directory check for the service principal in the tenant. Defaults to false.
+  - `condition` - (Optional) The condition which will be used to scope the role assignment.
+  - `condition_version` - (Optional) The version of the condition syntax. Leave as `null` if you are not using a condition, if you are then valid values are '2.0'.
+  - `delegated_managed_identity_resource_id` - (Optional) The delegated Azure Resource Id which contains a Managed Identity. Changing this forces a new resource to be created. This field is only used in cross-tenant scenario.
+  - `principal_type` - (Optional) The type of the `principal_id`. Possible values are `User`, `Group` and `ServicePrincipal`. It is necessary to explicitly set this attribute when creating role assignments if the principal creating the assignment is constrained by ABAC rules that filters on the PrincipalType attribute.
+  
+  > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
+  DESCRIPTION
+  nullable    = false
 }
 
 variable "subscription_ids" {
   type        = list(string)
   default     = []
-  description = "TODO"
+  description = "(Optional) The list of ids of the subscriptions where this should be applied. Changing this forces a new Policy Assignment to be created."
 }

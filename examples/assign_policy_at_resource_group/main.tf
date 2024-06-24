@@ -43,11 +43,9 @@ resource "azurerm_resource_group" "example" {
   name     = "example-rg"
 }
 
-module "test" {
+module "assign_policy_at_resource_group" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  default_location = module.regions.regions[random_integer.region_index.result].name
-
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
@@ -58,7 +56,6 @@ module "test" {
   description        = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   enforce            = "Default"
   location           = module.regions.regions[random_integer.region_index.result].name
-  identity           = {}
 
   parameters = {
     maximumDaysToRotate = {

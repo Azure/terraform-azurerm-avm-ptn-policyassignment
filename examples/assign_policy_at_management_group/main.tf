@@ -42,10 +42,9 @@ data "azurerm_management_group" "root" {
   name = "root"
 }
 
-module "test_management_group" {
+module "assign_policy_at_management_group" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  default_location = module.regions.regions[random_integer.region_index.result].name
 
   enable_telemetry = var.enable_telemetry # see variables.tf
 
@@ -58,14 +57,16 @@ module "test_management_group" {
   location             = module.regions.regions[random_integer.region_index.result].name
   identity             = { "type" = "SystemAssigned" }
 
-  role_assignments = [
-    {
-      "role_definition_id" : "ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
+  role_assignments = {
+    storage = {
+      "role_definition_id_or_name" : "ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
+      principal_id : "ignored"
     },
-    {
-      "role_definition_name" : "Contributor"
+    contrib = {
+      "role_definition_id_or_name" : "Contributor"
+      principal_id : "ignored"
     }
-  ]
+  }
 
   parameters = {
     maximumDaysToRotate = {

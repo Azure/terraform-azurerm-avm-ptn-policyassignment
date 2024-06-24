@@ -12,7 +12,7 @@ resource "azurerm_management_group_template_deployment" "telemetry_mg" {
     vi => v if var.enable_telemetry
   })
 
-  location            = var.default_location
+  location            = var.location
   management_group_id = each.value
   name                = local.telem_arm_deployment_name
   tags                = null
@@ -26,7 +26,7 @@ resource "azurerm_subscription_template_deployment" "telemetry_sub" {
     vi => v if var.enable_telemetry
   })
 
-  location         = var.default_location
+  location         = var.location
   name             = local.telem_arm_deployment_name
   tags             = null
   template_content = local.telem_arm_template_content

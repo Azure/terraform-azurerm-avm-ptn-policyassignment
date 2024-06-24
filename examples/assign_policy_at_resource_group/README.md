@@ -49,11 +49,9 @@ resource "azurerm_resource_group" "example" {
   name     = "example-rg"
 }
 
-module "test" {
+module "assign_policy_at_resource_group" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  default_location = module.regions.regions[random_integer.region_index.result].name
-
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
@@ -64,7 +62,6 @@ module "test" {
   description        = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   enforce            = "Default"
   location           = module.regions.regions[random_integer.region_index.result].name
-  identity           = {}
 
   parameters = {
     maximumDaysToRotate = {
@@ -127,6 +124,12 @@ No outputs.
 
 The following Modules are called:
 
+### <a name="module_assign_policy_at_resource_group"></a> [assign\_policy\_at\_resource\_group](#module\_assign\_policy\_at\_resource\_group)
+
+Source: ../../
+
+Version:
+
 ### <a name="module_naming"></a> [naming](#module\_naming)
 
 Source: Azure/naming/azurerm
@@ -138,12 +141,6 @@ Version: ~> 0.3
 Source: Azure/regions/azurerm
 
 Version: ~> 0.3
-
-### <a name="module_test"></a> [test](#module\_test)
-
-Source: ../../
-
-Version:
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection

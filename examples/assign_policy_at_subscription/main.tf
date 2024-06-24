@@ -39,11 +39,9 @@ module "naming" {
 
 data "azurerm_client_config" "current" {}
 
-module "test" {
+module "assign_policy_at_subscription" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  default_location = module.regions.regions[random_integer.region_index.result].name
-
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
@@ -56,14 +54,16 @@ module "test" {
   location         = module.regions.regions[random_integer.region_index.result].name
   identity         = { "type" = "SystemAssigned" }
 
-  role_assignments = [
-    {
-      "role_definition_id" : "ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
+  role_assignments = {
+    storage = {
+      "role_definition_id_or_name" : "ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
+      principal_id : "ignored"
     },
-    {
-      "role_definition_name" : "Contributor"
+    contrib = {
+      "role_definition_id_or_name" : "Contributor"
+      principal_id : "ignored"
     }
-  ]
+  }
   parameters = {
     maximumDaysToRotate = {
       value = 90
