@@ -1,19 +1,19 @@
 <!-- BEGIN_TF_DOCS -->
-# Default example
+# Assign policy at management group
 
-This deploys the module in its simplest form.
+This example demonstrates how to assign a policy at a management group scope. The parameter which needs to be set is "management\_group\_ids".
 
 ```hcl
 terraform {
-  required_version = ">= 1.3.0"
+  required_version = "~> v1.8.0"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.7.0, < 4.0.0"
+      version = "~> 3.74"
     }
     random = {
       source  = "hashicorp/random"
-      version = ">= 3.5.0, < 4.0.0"
+      version = "~> 3.5"
     }
   }
 }
@@ -27,7 +27,7 @@ provider "azurerm" {
 # This allows us to randomize the region for the resource group.
 module "regions" {
   source  = "Azure/regions/azurerm"
-  version = ">= 0.3.0"
+  version = "~> 0.3"
 }
 
 # This allows us to randomize the region for the resource group.
@@ -40,26 +40,44 @@ resource "random_integer" "region_index" {
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
   source  = "Azure/naming/azurerm"
-  version = ">= 0.3.0"
+  version = "~> 0.3"
 }
 
-# This is required for resource modules
-resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
-  name     = module.naming.resource_group.name_unique
+# reference an existing management group here
+data "azurerm_management_group" "root" {
+  name = "root"
 }
 
-# This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
-module "test" {
+module "test_management_group" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
-  enable_telemetry    = var.enable_telemetry # see variables.tf
-  name                = "TODO"               # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
-  resource_group_name = azurerm_resource_group.this.name
+  default_location = module.regions.regions[random_integer.region_index.result].name
+
+  enable_telemetry = var.enable_telemetry # see variables.tf
+
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
+  management_group_ids = [data.azurerm_management_group.root.id]
+  name                 = "Enforce-GR-Keyvault"
+  display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
+  description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
+  enforce              = "Default"
+  location             = module.regions.regions[random_integer.region_index.result].name
+  identity             = { "type" = "SystemAssigned" }
+
+  role_assignments = [
+    {
+      "role_definition_id" : "ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
+    },
+    {
+      "role_definition_name" : "Contributor"
+    }
+  ]
+
+  parameters = {
+    maximumDaysToRotate = {
+      value = 90
+    }
+  }
 }
 ```
 
@@ -68,26 +86,26 @@ module "test" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.3.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> v1.8.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.7.0, < 4.0.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
 
-- <a name="requirement_random"></a> [random](#requirement\_random) (>= 3.5.0, < 4.0.0)
+- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
 
 ## Providers
 
 The following providers are used by this module:
 
-- <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) (>= 3.7.0, < 4.0.0)
+- <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) (~> 3.74)
 
-- <a name="provider_random"></a> [random](#provider\_random) (>= 3.5.0, < 4.0.0)
+- <a name="provider_random"></a> [random](#provider\_random) (~> 3.5)
 
 ## Resources
 
 The following resources are used by this module:
 
-- [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+- [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/management_group) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -120,15 +138,15 @@ The following Modules are called:
 
 Source: Azure/naming/azurerm
 
-Version: >= 0.3.0
+Version: ~> 0.3
 
 ### <a name="module_regions"></a> [regions](#module\_regions)
 
 Source: Azure/regions/azurerm
 
-Version: >= 0.3.0
+Version: ~> 0.3
 
-### <a name="module_test"></a> [test](#module\_test)
+### <a name="module_test_management_group"></a> [test\_management\_group](#module\_test\_management\_group)
 
 Source: ../../
 
