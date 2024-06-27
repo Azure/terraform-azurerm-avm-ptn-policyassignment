@@ -37,20 +37,22 @@ module "naming" {
   version = "~> 0.3"
 }
 
-data "azurerm_management_group" "root" {
+resource "azurerm_management_group" "root" {
   name = "root"
 }
 
 
-data "azurerm_resource_group" "example" {
-  name = "test-storage"
+resource "azurerm_resource_group" "example" {
+  location = module.regions.regions[random_integer.region_index.result].name
+  name     = "test-storage"
 }
 
 
-
-data "azurerm_virtual_network" "example" {
+resource "azurerm_virtual_network" "example" {
+  address_space       = ["10.0.0.0/24"]
+  location            = azurerm_resource_group.example.location
   name                = "test-storage"
-  resource_group_name = data.azurerm_resource_group.example.name
+  resource_group_name = azurerm_resource_group.example.name
 }
 
 data "azurerm_client_config" "current" {}
@@ -61,7 +63,7 @@ module "manage_policy_exemptions" {
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
-  management_group_ids = [data.azurerm_management_group.root.id]
+  management_group_ids = [azurerm_management_group.root.id]
   name                 = "Enforce-GR-Keyvault"
   display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
@@ -77,11 +79,11 @@ module "manage_policy_exemptions" {
   }
   exemptions = [
     {
-      resource_id : data.azurerm_virtual_network.example.id
+      resource_id : azurerm_virtual_network.example.id
       exemption_category : "Mitigated"
     },
     {
-      resource_group_id : data.azurerm_resource_group.example.id
+      resource_group_id : azurerm_resource_group.example.id
       exemption_category : "Mitigated"
     },
     {
@@ -89,7 +91,7 @@ module "manage_policy_exemptions" {
       exemption_category : "Mitigated"
     },
     {
-      management_group_id = data.azurerm_management_group.root.id
+      management_group_id = azurerm_management_group.root.id
       exemption_category  = "Waiver"
     }
   ]

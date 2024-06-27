@@ -44,7 +44,7 @@ module "naming" {
 }
 
 # reference an existing management group here
-data "azurerm_management_group" "root" {
+resource "azurerm_management_group" "root" {
   name = "root"
 }
 
@@ -55,7 +55,7 @@ module "assign_policy_at_management_group" {
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
-  management_group_ids = [data.azurerm_management_group.root.id]
+  management_group_ids = [azurerm_management_group.root.id]
   name                 = "Enforce-GR-Keyvault"
   display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
@@ -65,7 +65,7 @@ module "assign_policy_at_management_group" {
 
   role_assignments = {
     storage = {
-      "role_definition_id_or_name" : "ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
+      "role_definition_id_or_name" : "/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
       principal_id : "ignored"
     },
     contrib = {
@@ -105,8 +105,8 @@ The following providers are used by this module:
 
 The following resources are used by this module:
 
+- [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
-- [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/management_group) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs

@@ -55,7 +55,7 @@ module "naming" {
   version = "~> 0.3"
 }
 
-data "azurerm_management_group" "root" {
+resource "azurerm_management_group" "root" {
   name = "root"
 }
 
@@ -67,7 +67,7 @@ module "manage_policy_exemptions_within_policy_sets" {
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policySetDefinitions/f5bf694c-cca7-4033-b883-3a23327d5485"
-  management_group_ids = [data.azurerm_management_group.root.id]
+  management_group_ids = [azurerm_management_group.root.id]
   name                 = "Azure-Monitor-AMA"
   display_name         = "Enable Azure Monitor for VMSS with Azure Monitoring Agent(AMA)"
   description          = "Enable Azure Monitor for the virtual machines scale set (VMSS) with AMA."
@@ -108,9 +108,9 @@ The following providers are used by this module:
 
 The following resources are used by this module:
 
+- [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
 - [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
-- [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/management_group) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs

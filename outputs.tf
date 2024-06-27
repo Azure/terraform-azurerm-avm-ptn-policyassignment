@@ -17,14 +17,14 @@ output "resource_group_policy_assignment" {
   value       = azurerm_resource_group_policy_assignment.this
 }
 
-# output "resource_id" {
-#   description = "This is the resource id of the policy assignment."
-#   value = coalesce(
-#     azurerm_management_group_policy_assignment.this[*],
-#     azurerm_resource_group_policy_assignment.this[*],
-#     azurerm_resource_policy_assignment.this[*],
-#   azurerm_subscription_policy_assignment.this[*])
-# }
+output "resource_id" {
+  description = "This is the resource id of the policy assignment."
+  value = coalesce(
+    azurerm_management_group_policy_assignment.this[*],
+    azurerm_resource_group_policy_assignment.this[*],
+    azurerm_resource_policy_assignment.this[*],
+  azurerm_subscription_policy_assignment.this[*])[0].id
+}
 
 output "resource_policy_assignment" {
   description = "This is the full output for the policy assignment for the resource."
