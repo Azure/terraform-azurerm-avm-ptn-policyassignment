@@ -23,7 +23,7 @@ output "resource_id" {
     azurerm_management_group_policy_assignment.this[*],
     azurerm_resource_group_policy_assignment.this[*],
     azurerm_resource_policy_assignment.this[*],
-  azurerm_subscription_policy_assignment.this[*])[0].id
+  azurerm_subscription_policy_assignment.this[*])
 }
 
 output "resource_policy_assignment" {
