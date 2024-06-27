@@ -59,7 +59,7 @@ module "assign_policy_at_management_group" {
 
   role_assignments = {
     storage = {
-      "role_definition_id_or_name" : "ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
+      "role_definition_id_or_name" : "/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe", # Storage Blob Data Contributor
       principal_id : "ignored"
     },
     contrib = {
