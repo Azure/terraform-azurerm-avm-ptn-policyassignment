@@ -26,6 +26,8 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.8.0)
 
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>=1.14.0)
+
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.71)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
@@ -35,6 +37,8 @@ The following requirements are needed by this module:
 ## Providers
 
 The following providers are used by this module:
+
+- <a name="provider_azapi"></a> [azapi](#provider\_azapi) (>=1.14.0)
 
 - <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) (~> 3.71)
 
@@ -46,19 +50,10 @@ The following providers are used by this module:
 
 The following resources are used by this module:
 
-- [azurerm_management_group_policy_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group_policy_assignment) (resource)
-- [azurerm_management_group_policy_exemption.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group_policy_exemption) (resource)
-- [azurerm_management_group_template_deployment.telemetry_mg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group_template_deployment) (resource)
-- [azurerm_resource_group_policy_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_policy_assignment) (resource)
-- [azurerm_resource_group_policy_exemption.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_policy_exemption) (resource)
-- [azurerm_resource_group_template_deployment.telemetry_resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_template_deployment) (resource)
-- [azurerm_resource_group_template_deployment.telemetry_rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_template_deployment) (resource)
-- [azurerm_resource_policy_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_policy_assignment) (resource)
-- [azurerm_resource_policy_exemption.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_policy_exemption) (resource)
+- [azapi_resource.policy_assignment](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.policy_exemption](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
-- [azurerm_subscription_policy_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subscription_policy_assignment) (resource)
-- [azurerm_subscription_policy_exemption.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subscription_policy_exemption) (resource)
-- [azurerm_subscription_template_deployment.telemetry_sub](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subscription_template_deployment) (resource)
 - [random_id.telem](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) (resource)
 - [time_sleep.before_policy_role_assignments](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) (resource)
 
@@ -76,6 +71,12 @@ Type: `string`
 ### <a name="input_policy_definition_id"></a> [policy\_definition\_id](#input\_policy\_definition\_id)
 
 Description: (Required) The ID of the Policy Definition or Policy Definition Set. Changing this forces a new Policy Assignment to be created.
+
+Type: `string`
+
+### <a name="input_scope"></a> [scope](#input\_scope)
+
+Description: (Required) The Scope at which this Policy Assignment should be applied. Changing this forces a new Policy Assignment to be created.
 
 Type: `string`
 
@@ -159,10 +160,7 @@ Type:
 
 ```hcl
 list(object({
-    resource_id                     = optional(string)
-    subscription_id                 = optional(string)
-    management_group_id             = optional(string)
-    resource_group_id               = optional(string)
+    resource_id                     = string
     policy_definition_reference_ids = optional(list(string))
     exemption_category              = string
   }))
@@ -184,14 +182,6 @@ object({
 ```
 
 Default: `null`
-
-### <a name="input_management_group_ids"></a> [management\_group\_ids](#input\_management\_group\_ids)
-
-Description: (Optional) The list of ids of the Management Groups where this should be applied. Changing this forces a new Policy Assignment to be created.
-
-Type: `list(string)`
-
-Default: `[]`
 
 ### <a name="input_metadata"></a> [metadata](#input\_metadata)
 
@@ -268,22 +258,6 @@ Type: `map(any)`
 
 Default: `null`
 
-### <a name="input_resource_group_ids"></a> [resource\_group\_ids](#input\_resource\_group\_ids)
-
-Description: (Optional) The list of ids of the resource groups where this should be applied. Changing this forces a new Policy Assignment to be created.
-
-Type: `list(string)`
-
-Default: `[]`
-
-### <a name="input_resource_ids"></a> [resource\_ids](#input\_resource\_ids)
-
-Description: (Optional) The list of ids of the resources where this should be applied. Changing this forces a new Policy Assignment to be created.
-
-Type: `list(string)`
-
-Default: `[]`
-
 ### <a name="input_resource_selectors"></a> [resource\_selectors](#input\_resource\_selectors)
 
 Description: (Optional) A list of resource selector objects to use for the policy assignment. Each object has the following properties:
@@ -341,45 +315,29 @@ map(object({
 
 Default: `{}`
 
-### <a name="input_subscription_ids"></a> [subscription\_ids](#input\_subscription\_ids)
-
-Description: (Optional) The list of ids of the subscriptions where this should be applied. Changing this forces a new Policy Assignment to be created.
-
-Type: `list(string)`
-
-Default: `[]`
-
 ## Outputs
 
 The following outputs are exported:
 
-### <a name="output_management_group_policy_assignment"></a> [management\_group\_policy\_assignment](#output\_management\_group\_policy\_assignment)
+### <a name="output_policy_assignment_id"></a> [policy\_assignment\_id](#output\_policy\_assignment\_id)
 
-Description: This is the full output for the policy assignment for the management group.
+Description: This is the id of the policy assignment
+
+### <a name="output_policy_assignment_name"></a> [policy\_assignment\_name](#output\_policy\_assignment\_name)
+
+Description: This is the name of the policy assignment
 
 ### <a name="output_resource"></a> [resource](#output\_resource)
 
-Description: This is the resource of the policy assignment.
-
-### <a name="output_resource_group_policy_assignment"></a> [resource\_group\_policy\_assignment](#output\_resource\_group\_policy\_assignment)
-
-Description: This is the full output for the policy assignment for the resource group.
+Description: Deprecated
 
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: This is the resource id of the policy assignment.
 
-### <a name="output_resource_policy_assignment"></a> [resource\_policy\_assignment](#output\_resource\_policy\_assignment)
-
-Description: This is the full output for the policy assignment for the resource.
-
 ### <a name="output_role_assignments"></a> [role\_assignments](#output\_role\_assignments)
 
 Description: This is the full output for the role assignments.
-
-### <a name="output_subscription_policy_assignment"></a> [subscription\_policy\_assignment](#output\_subscription\_policy\_assignment)
-
-Description: This is the full output for the policy assignment for the subscription.
 
 ## Modules
 

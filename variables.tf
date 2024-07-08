@@ -9,6 +9,11 @@ variable "policy_definition_id" {
   description = "(Required) The ID of the Policy Definition or Policy Definition Set. Changing this forces a new Policy Assignment to be created."
 }
 
+variable "scope" {
+  type        = string
+  description = "(Required) The Scope at which this Policy Assignment should be applied. Changing this forces a new Policy Assignment to be created."
+}
+
 variable "delays" {
   type = object({
     before_policy_assignments = optional(object({
@@ -67,10 +72,7 @@ variable "enforce" {
 
 variable "exemptions" {
   type = list(object({
-    resource_id                     = optional(string)
-    subscription_id                 = optional(string)
-    management_group_id             = optional(string)
-    resource_group_id               = optional(string)
+    resource_id                     = string
     policy_definition_reference_ids = optional(list(string))
     exemption_category              = string
   }))
@@ -88,12 +90,16 @@ variable "exemptions" {
 DESCRIPTION
 
   validation {
-    condition     = alltrue([for e in var.exemptions : e.resource_id != null || e.subscription_id != null || e.management_group_id != null || e.resource_group_id != null])
-    error_message = "One of the following must be set: resource_id, subscription_id, management_group_id or resource_group_id."
+    condition     = alltrue([for e in var.exemptions : e.resource_id != null])
+    error_message = "The resource_id needs to be set."
   }
   validation {
     condition     = alltrue([for e in var.exemptions : contains(["Waiver", "Mitigated"], e.exemption_category)])
-    error_message = "exemption category must be one of Waiver or Mitigated."
+    error_message = "Exemption category must be one of Waiver or Mitigated."
+  }
+  validation { # TODO - change to warning
+    condition     = alltrue([for e in var.exemptions : length(lookup(e, "display_name", "")) <= 128])
+    error_message = "The display_name is too long and will be shortened."
   }
 }
 
@@ -106,12 +112,6 @@ variable "identity" {
   (Optional) An identity block as defined below.
    - `type` - (Required) SystemAssigned or UserAssigned.
   DESCRIPTION
-}
-
-variable "management_group_ids" {
-  type        = list(string)
-  default     = []
-  description = "(Optional) The list of ids of the Management Groups where this should be applied. Changing this forces a new Policy Assignment to be created."
 }
 
 variable "metadata" {
@@ -174,18 +174,6 @@ variable "parameters" {
   description = "(Optional) A mapping of any Parameters for this Policy."
 }
 
-variable "resource_group_ids" {
-  type        = list(string)
-  default     = []
-  description = "(Optional) The list of ids of the resource groups where this should be applied. Changing this forces a new Policy Assignment to be created."
-}
-
-variable "resource_ids" {
-  type        = list(string)
-  default     = []
-  description = "(Optional) The list of ids of the resources where this should be applied. Changing this forces a new Policy Assignment to be created."
-}
-
 variable "resource_selectors" {
   type = list(object({
     name = string
@@ -234,10 +222,4 @@ variable "role_assignments" {
   > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
   DESCRIPTION
   nullable    = false
-}
-
-variable "subscription_ids" {
-  type        = list(string)
-  default     = []
-  description = "(Optional) The list of ids of the subscriptions where this should be applied. Changing this forces a new Policy Assignment to be created."
 }

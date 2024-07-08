@@ -45,7 +45,7 @@ module "naming" {
 
 # reference an existing management group here
 resource "azurerm_management_group" "root" {
-  name = "root"
+  name = "test2"
 }
 
 module "assign_policy_at_management_group" {
@@ -55,7 +55,7 @@ module "assign_policy_at_management_group" {
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
-  management_group_ids = [azurerm_management_group.root.id]
+  scope                = azurerm_management_group.root.id
   name                 = "Enforce-GR-Keyvault"
   display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."

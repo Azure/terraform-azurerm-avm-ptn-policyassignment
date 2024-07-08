@@ -50,12 +50,12 @@ module "assign_policy_at_resource_group" {
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
 
-  resource_group_ids = [azurerm_resource_group.example.id]
-  name               = "Enforce-GR-Keyvault"
-  display_name       = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
-  description        = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
-  enforce            = "Default"
-  location           = module.regions.regions[random_integer.region_index.result].name
+  scope        = azurerm_resource_group.example.id
+  name         = "Enforce-GR-Keyvault"
+  display_name = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
+  description  = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
+  enforce      = "Default"
+  location     = module.regions.regions[random_integer.region_index.result].name
 
   parameters = {
     maximumDaysToRotate = {

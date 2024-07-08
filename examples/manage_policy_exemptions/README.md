@@ -37,6 +37,10 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.5"
     }
+    # azapi = {
+    #   source  = "Azure/azapi"
+    #   version = ">=1.7.0"
+    # }
   }
 }
 
@@ -85,13 +89,18 @@ resource "azurerm_virtual_network" "example" {
 
 data "azurerm_client_config" "current" {}
 
+resource "azurerm_management_group_subscription_association" "example" {
+  management_group_id = azurerm_management_group.root.id
+  subscription_id     = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+}
+
 module "manage_policy_exemptions" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
-  management_group_ids = [azurerm_management_group.root.id]
+  scope                = azurerm_management_group.root.id
   name                 = "Enforce-GR-Keyvault"
   display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
@@ -111,16 +120,16 @@ module "manage_policy_exemptions" {
       exemption_category : "Mitigated"
     },
     {
-      resource_group_id : azurerm_resource_group.example.id
+      resource_id : azurerm_resource_group.example.id
       exemption_category : "Mitigated"
     },
     {
-      subscription_id : data.azurerm_client_config.current.subscription_id
+      resource_id : "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
       exemption_category : "Mitigated"
     },
     {
-      management_group_id = azurerm_management_group.root.id
-      exemption_category  = "Waiver"
+      resource_id        = azurerm_management_group.root.id
+      exemption_category = "Waiver"
     }
   ]
 
@@ -156,6 +165,7 @@ The following providers are used by this module:
 The following resources are used by this module:
 
 - [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group) (resource)
+- [azurerm_management_group_subscription_association.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group_subscription_association) (resource)
 - [azurerm_resource_group.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [azurerm_virtual_network.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
