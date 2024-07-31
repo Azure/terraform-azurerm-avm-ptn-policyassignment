@@ -223,3 +223,9 @@ variable "role_assignments" {
   DESCRIPTION
   nullable    = false
 }
+
+variable "schema_validation_enabled" {
+  type        = bool
+  default     = true
+  description = "(Optional) Specifies if this Policy should be validated against the schema. Defaults to true."
+}

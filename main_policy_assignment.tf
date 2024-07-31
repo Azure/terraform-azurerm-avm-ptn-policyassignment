@@ -4,7 +4,7 @@
 
 resource "azapi_resource" "policy_assignment" {
   type = "Microsoft.Authorization/policyAssignments@2024-04-01"
-  body = jsonencode({
+  body = {
     properties = {
       # assignmentType  = "string" # TODO MISSING
 
@@ -19,10 +19,11 @@ resource "azapi_resource" "policy_assignment" {
       policyDefinitionId    = var.policy_definition_id
       resourceSelectors     = try(var.resource_selectors, [])
     }
-  })
-  location  = try(var.location, null)
-  name      = var.name
-  parent_id = var.scope
+  }
+  location                  = try(var.location, null)
+  name                      = var.name
+  parent_id                 = var.scope
+  schema_validation_enabled = var.schema_validation_enabled
 
   dynamic "identity" {
     for_each = try(var.identity.type, "None") != "None" ? [var.identity] : []

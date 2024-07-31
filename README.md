@@ -315,6 +315,14 @@ map(object({
 
 Default: `{}`
 
+### <a name="input_schema_validation_enabled"></a> [schema\_validation\_enabled](#input\_schema\_validation\_enabled)
+
+Description: (Optional) Specifies if this Policy should be validated against the schema. Defaults to true.
+
+Type: `bool`
+
+Default: `true`
+
 ## Outputs
 
 The following outputs are exported:
