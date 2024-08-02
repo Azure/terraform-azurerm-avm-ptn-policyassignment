@@ -1,6 +1,6 @@
 variable "location" {
   type        = string
-  description = "(Required) The Azure Region where the Policy Assignment should exist. Changing this forces a new Policy Assignment to be created."
+  description = "Azure region where the resource should be deployed."
   nullable    = false
 }
 

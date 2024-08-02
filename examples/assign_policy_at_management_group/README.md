@@ -5,7 +5,7 @@ This example demonstrates how to assign a policy at a management group scope. Th
 
 ```hcl
 terraform {
-  required_version = "~> v1.8.0"
+  required_version = "~> v1.8"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -87,19 +87,11 @@ module "assign_policy_at_management_group" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> v1.8.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> v1.8)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
-
-## Providers
-
-The following providers are used by this module:
-
-- <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) (~> 3.74)
-
-- <a name="provider_random"></a> [random](#provider\_random) (~> 3.5)
 
 ## Resources
 
