@@ -48,7 +48,7 @@ resource "azurerm_management_group" "root" {
 
 resource "azurerm_resource_group" "example" {
   location = module.regions.regions[random_integer.region_index.result].name
-  name     = "test-storage"
+  name     = "test-exemptions"
 }
 
 
