@@ -42,7 +42,7 @@ module "naming" {
 }
 
 resource "azurerm_management_group" "root" {
-  name = "root"
+  name = "test-root"
 }
 
 

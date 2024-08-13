@@ -45,7 +45,15 @@ module "naming" {
 
 # reference an existing management group here
 resource "azurerm_management_group" "root" {
-  name = "test2"
+  name = "test-mg"
+}
+
+
+data "azurerm_client_config" "current" {}
+resource "azurerm_role_assignment" "root" {
+  principal_id         = data.azurerm_client_config.current.object_id
+  scope                = azurerm_management_group.root.id
+  role_definition_name = "Owner"
 }
 
 module "assign_policy_at_management_group" {
@@ -98,7 +106,9 @@ The following requirements are needed by this module:
 The following resources are used by this module:
 
 - [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group) (resource)
+- [azurerm_role_assignment.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+- [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
