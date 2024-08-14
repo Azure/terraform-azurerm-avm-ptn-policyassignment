@@ -61,11 +61,6 @@ resource "azurerm_virtual_network" "example" {
 
 data "azurerm_client_config" "current" {}
 
-resource "azurerm_management_group_subscription_association" "example" {
-  management_group_id = azurerm_management_group.root.id
-  subscription_id     = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-}
-
 module "manage_policy_exemptions" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"

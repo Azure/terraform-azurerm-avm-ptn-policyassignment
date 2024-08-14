@@ -89,11 +89,6 @@ resource "azurerm_virtual_network" "example" {
 
 data "azurerm_client_config" "current" {}
 
-resource "azurerm_management_group_subscription_association" "example" {
-  management_group_id = azurerm_management_group.root.id
-  subscription_id     = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-}
-
 module "manage_policy_exemptions" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
@@ -157,7 +152,6 @@ The following requirements are needed by this module:
 The following resources are used by this module:
 
 - [azurerm_management_group.root](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group) (resource)
-- [azurerm_management_group_subscription_association.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_group_subscription_association) (resource)
 - [azurerm_resource_group.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [azurerm_virtual_network.example](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
