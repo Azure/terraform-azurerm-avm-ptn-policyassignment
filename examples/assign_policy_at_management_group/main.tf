@@ -42,14 +42,6 @@ resource "azurerm_management_group" "root" {
   name = "test-mg"
 }
 
-
-data "azurerm_client_config" "current" {}
-resource "azurerm_role_assignment" "root" {
-  principal_id         = data.azurerm_client_config.current.object_id
-  scope                = azurerm_management_group.root.id
-  role_definition_name = "Owner"
-}
-
 module "assign_policy_at_management_group" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"

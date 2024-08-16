@@ -59,8 +59,6 @@ resource "azurerm_virtual_network" "example" {
   resource_group_name = azurerm_resource_group.example.name
 }
 
-data "azurerm_client_config" "current" {}
-
 module "manage_policy_exemptions" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
@@ -88,10 +86,6 @@ module "manage_policy_exemptions" {
     },
     {
       resource_id : azurerm_resource_group.example.id
-      exemption_category : "Mitigated"
-    },
-    {
-      resource_id : "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
       exemption_category : "Mitigated"
     },
     {
