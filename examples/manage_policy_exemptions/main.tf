@@ -46,19 +46,6 @@ resource "azurerm_management_group" "root" {
 }
 
 
-resource "azurerm_resource_group" "example" {
-  location = module.regions.regions[random_integer.region_index.result].name
-  name     = "test-exemptions"
-}
-
-
-resource "azurerm_virtual_network" "example" {
-  address_space       = ["10.0.0.0/24"]
-  location            = azurerm_resource_group.example.location
-  name                = "test-storage"
-  resource_group_name = azurerm_resource_group.example.name
-}
-
 module "manage_policy_exemptions" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
@@ -80,14 +67,6 @@ module "manage_policy_exemptions" {
     }
   }
   exemptions = [
-    {
-      resource_id : azurerm_virtual_network.example.id
-      exemption_category : "Mitigated"
-    },
-    {
-      resource_id : azurerm_resource_group.example.id
-      exemption_category : "Mitigated"
-    },
     {
       resource_id        = azurerm_management_group.root.id
       exemption_category = "Waiver"
