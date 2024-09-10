@@ -27,6 +27,7 @@ resource "azapi_resource" "policy_assignment" {
 
   dynamic "identity" {
     for_each = try(var.identity.type, "None") != "None" ? [var.identity] : []
+
     content {
       type         = identity.value.type
       identity_ids = identity.value.type == "SystemAssigned" ? [] : toset(keys(identity.value.userAssignedIdentities))

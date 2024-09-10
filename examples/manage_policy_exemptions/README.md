@@ -37,15 +37,15 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.5"
     }
-    # azapi = {
-    #   source  = "Azure/azapi"
-    #   version = ">=1.7.0"
-    # }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 
@@ -76,7 +76,7 @@ resource "azurerm_management_group" "root" {
 
 module "manage_policy_exemptions" {
   source = "../../"
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
+  # source = "Azure/terraform-azurerm-avm-ptn-policyassignment"
   enable_telemetry = var.enable_telemetry # see variables.tf
 
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
