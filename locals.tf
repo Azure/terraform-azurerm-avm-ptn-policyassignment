@@ -1,6 +1,6 @@
 # TODO: insert locals here.
 locals {
-  resource_group_location            = try(data.azurerm_resource_group.parent.location[0], null)
+  #resource_group_location            = try(data.azurerm_resource_group.parent.location[0], null)
   role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
 }
 
