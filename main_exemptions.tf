@@ -5,7 +5,7 @@ resource "azapi_resource" "policy_exemption" {
   })
 
   type = "Microsoft.Authorization/policyExemptions@2022-07-01-preview"
-  body = jsonencode({
+  body = {
     properties = {
       policyAssignmentId           = azapi_resource.policy_assignment.id
       policyDefinitionReferenceIds = lookup(each.value, "policy_definition_reference_ids", [])
@@ -15,7 +15,7 @@ resource "azapi_resource" "policy_exemption" {
       expiresOn                    = lookup(each.value, "expires_on", null)
       metadata                     = lookup(each.value, "metadata", null)
     }
-  })
+  }
   name      = lookup(each.value, "name", "Exemption for ${azapi_resource.policy_assignment.name}")
   parent_id = each.value.resource_id
 
