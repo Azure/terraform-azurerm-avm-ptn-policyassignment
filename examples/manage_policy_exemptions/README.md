@@ -28,6 +28,7 @@ exemptions = [
 ```hcl
 terraform {
   required_version = ">= v1.8"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -76,34 +77,32 @@ resource "azurerm_management_group" "root" {
 
 module "manage_policy_exemptions" {
   source = "../../"
-  # source = "Azure/terraform-azurerm-avm-ptn-policyassignment"
-  enable_telemetry = var.enable_telemetry # see variables.tf
 
+  location             = module.regions.regions[random_integer.region_index.result].name
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
   scope                = azurerm_management_group.root.id
-  name                 = "Enforce-GR-Keyvault"
-  display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
-  enforce              = "Default"
-  location             = module.regions.regions[random_integer.region_index.result].name
-  identity             = { "type" = "SystemAssigned" }
-
-  role_assignments = {
-    contrib = {
-      "role_definition_id_or_name" : "Contributor"
-      principal_id : "ignored"
-    }
-  }
+  display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
+  # source = "Azure/terraform-azurerm-avm-ptn-policyassignment"
+  enable_telemetry = var.enable_telemetry # see variables.tf
+  enforce          = "Default"
   exemptions = [
     {
       resource_id        = azurerm_management_group.root.id
       exemption_category = "Waiver"
     }
   ]
-
+  identity = { "type" = "SystemAssigned" }
+  name     = "Enforce-GR-Keyvault"
   parameters = {
     maximumDaysToRotate = {
       value = 90
+    }
+  }
+  role_assignments = {
+    contrib = {
+      "role_definition_id_or_name" : "Contributor"
+      principal_id : "ignored"
     }
   }
 }

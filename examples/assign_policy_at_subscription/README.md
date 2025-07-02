@@ -6,6 +6,7 @@ This example demonstrates how to assign a policy at a subscription. The paramete
 ```hcl
 terraform {
   required_version = "~> 1.8"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -51,28 +52,26 @@ data "azurerm_client_config" "current" {}
 
 module "assign_policy_at_subscription" {
   source = "../../"
+
+  location             = module.regions.regions[random_integer.region_index.result].name
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
+  scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+  description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
+  display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   # source = "Azure/terraform-azurerm-avm-ptn-policyassignment"
   enable_telemetry = var.enable_telemetry # see variables.tf
-
-  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
-
-  scope        = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-  name         = "Enforce-GR-Keyvault"
-  display_name = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
-  description  = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
-  enforce      = "Default"
-  location     = module.regions.regions[random_integer.region_index.result].name
-  identity     = { "type" = "SystemAssigned" }
-
+  enforce          = "Default"
+  identity         = { "type" = "SystemAssigned" }
+  name             = "Enforce-GR-Keyvault"
+  parameters = {
+    maximumDaysToRotate = {
+      value = 90
+    }
+  }
   role_assignments = {
     contrib = {
       "role_definition_id_or_name" : "Contributor"
       principal_id : "ignored"
-    }
-  }
-  parameters = {
-    maximumDaysToRotate = {
-      value = 90
     }
   }
 }

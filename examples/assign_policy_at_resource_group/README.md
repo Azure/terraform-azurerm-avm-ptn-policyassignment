@@ -6,6 +6,7 @@ This example demonstrates how to assign a policy at a resource group scope. The 
 ```hcl
 terraform {
   required_version = "~> 1.8"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -55,18 +56,16 @@ resource "azurerm_resource_group" "example" {
 
 module "assign_policy_at_resource_group" {
   source = "../../"
+
+  location             = module.regions.regions[random_integer.region_index.result].name
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
+  scope                = azurerm_resource_group.example.id
+  description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
+  display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   # source = "Azure/terraform-azurerm-avm-ptn-policyassignment"
   enable_telemetry = var.enable_telemetry # see variables.tf
-
-  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/d8cf8476-a2ec-4916-896e-992351803c44"
-
-  scope        = azurerm_resource_group.example.id
-  name         = "Enforce-GR-Keyvault"
-  display_name = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
-  description  = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
-  enforce      = "Default"
-  location     = module.regions.regions[random_integer.region_index.result].name
-
+  enforce          = "Default"
+  name             = "Enforce-GR-Keyvault"
   parameters = {
     maximumDaysToRotate = {
       value = 90
