@@ -4,7 +4,9 @@ resource "azapi_resource" "policy_exemption" {
     vi => v
   })
 
-  type = "Microsoft.Authorization/policyExemptions@2022-07-01-preview"
+  name      = lookup(each.value, "name", "Exemption for ${azapi_resource.policy_assignment.name}")
+  parent_id = each.value.resource_id
+  type      = "Microsoft.Authorization/policyExemptions@2022-07-01-preview"
   body = {
     properties = {
       policyAssignmentId           = azapi_resource.policy_assignment.id
@@ -16,8 +18,6 @@ resource "azapi_resource" "policy_exemption" {
       metadata                     = lookup(each.value, "metadata", null)
     }
   }
-  name      = lookup(each.value, "name", "Exemption for ${azapi_resource.policy_assignment.name}")
-  parent_id = each.value.resource_id
 
   depends_on = [time_sleep.before_policy_role_assignments]
 }

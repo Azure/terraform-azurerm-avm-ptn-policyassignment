@@ -3,7 +3,10 @@
 # output guidance: https://azure.github.io/Azure-Verified-Modules/specs/terraform/#id-tffr2---category-outputs---additional-terraform-outputs
 
 resource "azapi_resource" "policy_assignment" {
-  type = "Microsoft.Authorization/policyAssignments@2024-04-01"
+  location  = try(var.location, null)
+  name      = var.name
+  parent_id = var.scope
+  type      = "Microsoft.Authorization/policyAssignments@2024-04-01"
   body = {
     properties = {
       # assignmentType  = "string" # TODO MISSING
@@ -20,9 +23,6 @@ resource "azapi_resource" "policy_assignment" {
       resourceSelectors     = try(var.resource_selectors, [])
     }
   }
-  location                  = try(var.location, null)
-  name                      = var.name
-  parent_id                 = var.scope
   schema_validation_enabled = var.schema_validation_enabled
 
   dynamic "identity" {
