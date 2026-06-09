@@ -170,7 +170,7 @@ variable "overrides" {
 }
 
 variable "parameters" {
-  type        = map(any)
+  type        = any
   default     = null
   description = "(Optional) A mapping of any Parameters for this Policy."
 }
