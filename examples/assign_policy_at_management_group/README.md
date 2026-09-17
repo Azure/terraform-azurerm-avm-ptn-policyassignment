@@ -63,7 +63,7 @@ module "assign_policy_at_management_group" {
   description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   # source = "Azure/terraform-azurerm-avm-ptn-policyassignment"
-  enable_telemetry = var.enable_telemetry # see variables.tf
+  enable_telemetry = false # see variables.tf
   enforce          = "Default"
   identity         = { "type" = "SystemAssigned" }
   name             = "Enforce-GR-Keyvault"
