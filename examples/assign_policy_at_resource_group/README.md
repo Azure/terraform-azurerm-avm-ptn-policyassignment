@@ -63,7 +63,7 @@ module "assign_policy_at_resource_group" {
   description          = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   display_name         = "Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation."
   # source = "Azure/terraform-azurerm-avm-ptn-policyassignment"
-  enable_telemetry = false # see variables.tf
+  enable_telemetry = var.enable_telemetry # see variables.tf
   enforce          = "Default"
   name             = "Enforce-GR-Keyvault"
   parameters = {
@@ -109,7 +109,7 @@ If it is set to false, then no telemetry will be collected.
 
 Type: `bool`
 
-Default: `true`
+Default: `false`
 
 ## Outputs
 
