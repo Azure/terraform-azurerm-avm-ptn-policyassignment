@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Policy assignment",
+  "moduleDescription": "AVM Pattern Module for Policy assignment",
+  "canonicalType": "authorization/policy-assignment",
+  "owners": [
+    "bjornhofer"
+  ],
+  "telemetryIdPrefix": "46d3xtrf.ptn.9b41fae"
+}
