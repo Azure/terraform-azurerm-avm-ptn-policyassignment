@@ -13,7 +13,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
@@ -148,13 +148,15 @@ Default: `[]`
 ### <a name="input_identity"></a> [identity](#input\_identity)
 
 Description:   (Optional) An identity block as defined below.
-   - `type` - (Required) SystemAssigned or UserAssigned.
+   - `type` - (Required) None, SystemAssigned, or UserAssigned.
+   - `userAssignedIdentities` - (Optional) A map of user-assigned managed identity resource IDs to empty objects. Required when `type` is UserAssigned.
 
 Type:
 
 ```hcl
 object({
-    type = string
+    type                   = string
+    userAssignedIdentities = optional(map(object({})), {})
   })
 ```
 

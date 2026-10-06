@@ -30,7 +30,7 @@ resource "azapi_resource" "policy_assignment" {
 
     content {
       type         = identity.value.type
-      identity_ids = identity.value.type == "SystemAssigned" ? [] : toset(keys(identity.value.userAssignedIdentities))
+      identity_ids = identity.value.type == "SystemAssigned" ? [] : toset(keys(try(identity.value.userAssignedIdentities, {})))
     }
   }
 }
