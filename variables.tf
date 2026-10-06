@@ -106,13 +106,31 @@ DESCRIPTION
 
 variable "identity" {
   type = object({
-    type = string
+    type                   = string
+    userAssignedIdentities = optional(map(object({})), {})
   })
   default     = null
   description = <<DESCRIPTION
   (Optional) An identity block as defined below.
-   - `type` - (Required) SystemAssigned or UserAssigned.
+   - `type` - (Required) None, SystemAssigned, or UserAssigned.
+   - `userAssignedIdentities` - (Optional) A map of user-assigned managed identity resource IDs to empty objects. Required when `type` is UserAssigned.
   DESCRIPTION
+
+  validation {
+    condition     = var.identity == null || contains(["None", "SystemAssigned", "UserAssigned"], var.identity.type)
+    error_message = "identity.type must be one of `None`, `SystemAssigned`, or `UserAssigned`."
+  }
+  validation {
+    condition     = var.identity == null || var.identity.type != "UserAssigned" || length(var.identity.userAssignedIdentities) > 0
+    error_message = "identity.userAssignedIdentities must contain at least one user-assigned managed identity resource ID when identity.type is `UserAssigned`."
+  }
+  validation {
+    condition = var.identity == null || alltrue([
+      for id in keys(var.identity.userAssignedIdentities) :
+      can(provider::azapi::parse_resource_id("Microsoft.ManagedIdentity/userAssignedIdentities", id))
+    ])
+    error_message = "Each key in identity.userAssignedIdentities must be a valid user-assigned managed identity resource ID."
+  }
 }
 
 variable "metadata" {
