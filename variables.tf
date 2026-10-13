@@ -213,6 +213,24 @@ variable "resource_selectors" {
   DESCRIPTION
 }
 
+variable "retry" {
+  type = object({
+    error_message_regex  = list(string)
+    interval_seconds     = optional(number)
+    max_interval_seconds = optional(number)
+  })
+  default     = null
+  description = <<DESCRIPTION
+Custom retry configuration for the module's AzAPI resources. With `null`, policy assignments retain provider defaults, while policy exemptions additionally retry only `CheckAccessPrincipalTokenInvalid`. Exemptions use a 75-second retry base and cap so the SDK's calculated delay, including timing randomization, is at least one minute. Provider-native busy-response and `Retry-After` handling still applies.
+
+- `error_message_regex` - Required, non-empty list of error-message patterns when configuring retries. Overrides the exemption's default pattern.
+- `interval_seconds` - Optional initial retry interval in seconds.
+- `max_interval_seconds` - Optional maximum retry interval in seconds.
+
+See <https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource#retry> for provider retry semantics.
+DESCRIPTION
+}
+
 variable "role_assignments" {
   type = map(object({
     role_definition_id_or_name = string
@@ -247,4 +265,22 @@ variable "schema_validation_enabled" {
   type        = bool
   default     = true
   description = "(Optional) Specifies if this Policy should be validated against the schema. Defaults to true."
+}
+
+variable "timeouts" {
+  type = object({
+    create = optional(string)
+    read   = optional(string)
+    update = optional(string)
+    delete = optional(string)
+  })
+  default     = null
+  description = <<DESCRIPTION
+Per-operation timeout overrides for the module's AzAPI resources. With `null`, policy exemptions use five-minute create/update timeouts; other operations and policy assignments retain provider defaults. Persistent failures remain errors when the operation times out.
+
+- `create` - Optional create timeout as a Go duration string, such as `5m`.
+- `read` - Optional read timeout as a Go duration string.
+- `update` - Optional update timeout as a Go duration string.
+- `delete` - Optional delete timeout as a Go duration string.
+DESCRIPTION
 }
