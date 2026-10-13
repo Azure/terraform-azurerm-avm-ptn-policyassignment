@@ -4,6 +4,8 @@
 
 This example demonstrates how to create one or more exemption. It is possible to exempt a resource, resource group, subscription or management group from a policy assignment. The exemption category can be set to "Mitigated" or "Waiver".
 
+The example creates a uniquely named child management group beneath the existing `avm-test` management group. Set `parent_management_group_id` to the full resource ID of another existing parent. The deployment identity needs permission to create child management groups and manage policy assignments, exemptions, and role assignments beneath that parent.
+
 ```hcl
 exemptions = [
   {
@@ -31,6 +33,10 @@ terraform {
   required_version = ">= v1.8"
 
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.12"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
@@ -72,7 +78,8 @@ module "naming" {
 }
 
 resource "azurerm_management_group" "root" {
-  name = "test-root"
+  name                       = module.naming.management_group.name_unique
+  parent_management_group_id = var.parent_management_group_id
 }
 
 module "manage_policy_exemptions" {
@@ -115,6 +122,8 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= v1.8)
 
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
+
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
@@ -144,6 +153,14 @@ If it is set to false, then no telemetry will be collected.
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_parent_management_group_id"></a> [parent\_management\_group\_id](#input\_parent\_management\_group\_id)
+
+Description: The resource ID of the existing parent management group under which to create the example management group.
+
+Type: `string`
+
+Default: `"/providers/Microsoft.Management/managementGroups/avm-test"`
 
 ## Outputs
 

@@ -2,6 +2,10 @@ terraform {
   required_version = ">= v1.8"
 
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.12"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
@@ -43,7 +47,8 @@ module "naming" {
 }
 
 resource "azurerm_management_group" "root" {
-  name = "test-root"
+  name                       = module.naming.management_group.name_unique
+  parent_management_group_id = var.parent_management_group_id
 }
 
 module "manage_policy_exemptions" {

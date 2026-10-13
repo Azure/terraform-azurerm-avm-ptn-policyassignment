@@ -2,6 +2,10 @@ terraform {
   required_version = "~> v1.8"
 
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.12"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
@@ -42,9 +46,9 @@ module "naming" {
   version = "0.4.4"
 }
 
-# reference an existing management group here
 resource "azurerm_management_group" "root" {
-  name = "test-mg"
+  name                       = module.naming.management_group.name_unique
+  parent_management_group_id = var.parent_management_group_id
 }
 
 module "assign_policy_at_management_group" {

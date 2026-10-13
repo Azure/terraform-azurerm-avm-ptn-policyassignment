@@ -18,6 +18,18 @@ resource "azapi_resource" "policy_exemption" {
       metadata                     = lookup(each.value, "metadata", null)
     }
   }
+  retry = var.retry == null ? local.policy_exemption_retry : var.retry
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [local.policy_exemption_timeouts] : [var.timeouts]
+
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 
   depends_on = [time_sleep.before_policy_role_assignments]
 }
