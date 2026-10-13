@@ -4,6 +4,10 @@
 
 This module is designed to simplify the assignment of policies.
 
+## AzureRM v4
+
+This module and its examples require AzureRM v4. When upgrading from v3, update the caller's provider requirement and reinitialize the provider dependencies. Configure the subscription using the provider's `subscription_id` argument or `ARM_SUBSCRIPTION_ID`; v4 no longer selects it implicitly from Azure CLI. Resource addresses and module inputs are unchanged.
+
 <!-- markdownlint-disable MD033 -->
 ## Requirements
 
@@ -13,7 +17,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
