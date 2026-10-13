@@ -215,7 +215,7 @@ variable "resource_selectors" {
 
 variable "retry" {
   type = object({
-    error_message_regex  = list(string)
+    error_message_regex  = optional(list(string))
     interval_seconds     = optional(number)
     max_interval_seconds = optional(number)
   })
@@ -229,6 +229,17 @@ Custom retry configuration for the module's AzAPI resources. With `null`, policy
 
 See <https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource#retry> for provider retry semantics.
 DESCRIPTION
+
+  validation {
+    condition = var.retry == null ? true : (
+      var.retry.error_message_regex == null ? false : (
+        length(var.retry.error_message_regex) > 0 &&
+        length(distinct(var.retry.error_message_regex)) == length(var.retry.error_message_regex) &&
+        alltrue([for pattern in var.retry.error_message_regex : can(regexall(pattern, ""))])
+      )
+    )
+    error_message = "retry.error_message_regex must contain at least one valid, unique regular expression when retry is set."
+  }
 }
 
 variable "role_assignments" {

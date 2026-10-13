@@ -129,3 +129,49 @@ run "allows_replacing_the_default_retry_rule" {
     error_message = "An explicit consumer retry rule must replace, not append to, the default exemption-token rule."
   }
 }
+
+run "requires_retry_error_patterns" {
+  command = plan
+
+  variables {
+    retry = {}
+  }
+
+  expect_failures = [var.retry]
+}
+
+run "rejects_empty_retry_error_patterns" {
+  command = plan
+
+  variables {
+    retry = {
+      error_message_regex = []
+    }
+  }
+
+  expect_failures = [var.retry]
+}
+
+run "rejects_invalid_retry_error_patterns" {
+  command = plan
+
+  variables {
+    retry = {
+      error_message_regex = ["["]
+    }
+  }
+
+  expect_failures = [var.retry]
+}
+
+run "rejects_duplicate_retry_error_patterns" {
+  command = plan
+
+  variables {
+    retry = {
+      error_message_regex = ["ScopeLocked", "ScopeLocked"]
+    }
+  }
+
+  expect_failures = [var.retry]
+}
