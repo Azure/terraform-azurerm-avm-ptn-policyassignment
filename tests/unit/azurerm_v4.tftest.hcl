@@ -7,15 +7,15 @@ mock_provider "azapi" {
 
   mock_data "azapi_client_config" {
     defaults = {
-      subscription_id = "00000000-0000-0000-0000-000000000000"
-      tenant_id       = "00000000-0000-0000-0000-000000000002"
+      subscription_id          = "00000000-0000-0000-0000-000000000000"
+      tenant_id                = "00000000-0000-0000-0000-000000000002"
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
     }
   }
 }
 
 mock_provider "azurerm" {}
-mock_provider "modtm" {}
-mock_provider "random" {}
+
 mock_provider "time" {}
 
 override_resource {
@@ -43,9 +43,9 @@ run "policy_without_roles" {
   providers = {
     azapi   = azapi
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
-    time    = time
+
+
+    time = time
   }
 
   assert {
@@ -66,9 +66,9 @@ run "role_assignment_by_name" {
   providers = {
     azapi   = azapi
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
-    time    = time
+
+
+    time = time
   }
 
   variables {
@@ -105,9 +105,9 @@ run "role_assignment_by_id" {
   providers = {
     azapi   = azapi
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
-    time    = time
+
+
+    time = time
   }
 
   variables {
