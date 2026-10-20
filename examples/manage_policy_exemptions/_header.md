@@ -2,6 +2,8 @@
 
 This example demonstrates how to create one or more exemption. It is possible to exempt a resource, resource group, subscription or management group from a policy assignment. The exemption category can be set to "Mitigated" or "Waiver".
 
+The example creates a uniquely named child management group beneath the existing `avm-test` management group. Set `parent_management_group_id` to the full resource ID of another existing parent. The deployment identity needs permission to create child management groups and manage policy assignments, exemptions, and role assignments beneath that parent.
+
 ```hcl
 exemptions = [
   {
@@ -23,4 +25,3 @@ exemptions = [
 ]
 
 ```
-

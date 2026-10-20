@@ -4,6 +4,14 @@
 
 This module is designed to simplify the assignment of policies.
 
+## AzureRM v4
+
+This module and its examples require AzureRM v4. When upgrading from v3, update the caller's provider requirement and reinitialize the provider dependencies. Configure the subscription using the provider's `subscription_id` argument or `ARM_SUBSCRIPTION_ID`; v4 no longer selects it implicitly from Azure CLI. Resource addresses and module inputs are unchanged.
+
+## Policy exemption retries
+
+Policy exemptions add a retry rule for `CheckAccessPrincipalTokenInvalid`, with a 75-second base interval/cap and five-minute create/update timeouts. The SDK's calculated retry delay is at least one minute; provider-native `Retry-After` handling still applies. Other authorization, invalid-input, and conflict errors do not match this rule, and persistent failures remain errors. The `retry` and `timeouts` inputs override these defaults. Policy assignments retain provider defaults unless overridden.
+
 <!-- markdownlint-disable MD033 -->
 ## Requirements
 
@@ -13,7 +21,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
@@ -148,13 +156,15 @@ Default: `[]`
 ### <a name="input_identity"></a> [identity](#input\_identity)
 
 Description:   (Optional) An identity block as defined below.
-   - `type` - (Required) SystemAssigned or UserAssigned.
+   - `type` - (Required) None, SystemAssigned, or UserAssigned.
+   - `userAssignedIdentities` - (Optional) A map of user-assigned managed identity resource IDs to empty objects. Required when `type` is UserAssigned.
 
 Type:
 
 ```hcl
 object({
-    type = string
+    type                   = string
+    userAssignedIdentities = optional(map(object({})), {})
   })
 ```
 
@@ -259,6 +269,28 @@ list(object({
 
 Default: `[]`
 
+### <a name="input_retry"></a> [retry](#input\_retry)
+
+Description: Custom retry configuration for the module's AzAPI resources. With `null`, policy assignments retain provider defaults, while policy exemptions additionally retry only `CheckAccessPrincipalTokenInvalid`. Exemptions use a 75-second retry base and cap so the SDK's calculated delay, including timing randomization, is at least one minute. Provider-native busy-response and `Retry-After` handling still applies.
+
+- `error_message_regex` - Required, non-empty list of error-message patterns when configuring retries. Overrides the exemption's default pattern.
+- `interval_seconds` - Optional initial retry interval in seconds.
+- `max_interval_seconds` - Optional maximum retry interval in seconds.
+
+See <https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource#retry> for provider retry semantics.
+
+Type:
+
+```hcl
+object({
+    error_message_regex  = optional(list(string))
+    interval_seconds     = optional(number)
+    max_interval_seconds = optional(number)
+  })
+```
+
+Default: `null`
+
 ### <a name="input_role_assignments"></a> [role\_assignments](#input\_role\_assignments)
 
 Description:   A map of role assignments to create on the <RESOURCE>. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
@@ -299,6 +331,28 @@ Description: (Optional) Specifies if this Policy should be validated against the
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_timeouts"></a> [timeouts](#input\_timeouts)
+
+Description: Per-operation timeout overrides for the module's AzAPI resources. With `null`, policy exemptions use five-minute create/update timeouts; other operations and policy assignments retain provider defaults. Persistent failures remain errors when the operation times out.
+
+- `create` - Optional create timeout as a Go duration string, such as `5m`.
+- `read` - Optional read timeout as a Go duration string.
+- `update` - Optional update timeout as a Go duration string.
+- `delete` - Optional delete timeout as a Go duration string.
+
+Type:
+
+```hcl
+object({
+    create = optional(string)
+    read   = optional(string)
+    update = optional(string)
+    delete = optional(string)
+  })
+```
+
+Default: `null`
 
 ## Outputs
 

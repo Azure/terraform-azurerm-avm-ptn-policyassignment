@@ -2,9 +2,13 @@ terraform {
   required_version = ">= v1.8"
 
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.12"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74"
+      version = "~> 4.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -25,7 +29,7 @@ provider "azurerm" {
 # This allows us to randomize the region for the resource group.
 module "regions" {
   source  = "Azure/regions/azurerm"
-  version = "~> 0.3"
+  version = "0.8.2"
 }
 
 # This allows us to randomize the region for the resource group.
@@ -39,11 +43,12 @@ resource "random_integer" "region_index" {
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
   source  = "Azure/naming/azurerm"
-  version = "~> 0.3"
+  version = "0.4.4"
 }
 
 resource "azurerm_management_group" "root" {
-  name = "test-root"
+  name                       = module.naming.management_group.name_unique
+  parent_management_group_id = var.parent_management_group_id
 }
 
 module "manage_policy_exemptions" {

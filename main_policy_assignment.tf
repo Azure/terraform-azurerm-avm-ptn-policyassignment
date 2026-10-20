@@ -23,6 +23,7 @@ resource "azapi_resource" "policy_assignment" {
       resourceSelectors     = try(var.resource_selectors, [])
     }
   }
+  retry                     = var.retry
   schema_validation_enabled = var.schema_validation_enabled
 
   dynamic "identity" {
@@ -30,7 +31,18 @@ resource "azapi_resource" "policy_assignment" {
 
     content {
       type         = identity.value.type
-      identity_ids = identity.value.type == "SystemAssigned" ? [] : toset(keys(identity.value.userAssignedIdentities))
+      identity_ids = identity.value.type == "SystemAssigned" ? [] : toset(keys(try(identity.value.userAssignedIdentities, {})))
+    }
+  }
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
     }
   }
 }
