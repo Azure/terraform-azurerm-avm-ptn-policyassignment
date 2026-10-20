@@ -190,7 +190,24 @@ variable "overrides" {
 variable "parameters" {
   type        = any
   default     = null
-  description = "(Optional) A mapping of any Parameters for this Policy."
+  description = <<DESCRIPTION
+(Optional) A map of parameter values for the policy assignment, in Azure Resource Manager shape:
+each key is a parameter name and each value is an object with a `value` attribute. Parameters
+can have different types in the same map, for example:
+
+```hcl
+parameters = {
+  effect                   = { value = "Deny" }
+  allowedCapabilities      = { value = [] }
+  requiredDropCapabilities = { value = ["ALL"] }
+}
+```
+DESCRIPTION
+
+  validation {
+    condition     = var.parameters == null || (can(keys(var.parameters)) && alltrue([for parameter in try(values(var.parameters), []) : can(parameter.value)]))
+    error_message = "parameters must be null or a map whose values are objects with a `value` attribute, for example `{ effect = { value = \"Deny\" } }`."
+  }
 }
 
 variable "resource_selectors" {

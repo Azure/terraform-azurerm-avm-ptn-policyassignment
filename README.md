@@ -239,9 +239,19 @@ Default: `[]`
 
 ### <a name="input_parameters"></a> [parameters](#input\_parameters)
 
-Description: (Optional) A mapping of any Parameters for this Policy.
+Description: (Optional) A map of parameter values for the policy assignment, in Azure Resource Manager shape:  
+each key is a parameter name and each value is an object with a `value` attribute. Parameters  
+can have different types in the same map, for example:
 
-Type: `map(any)`
+```hcl
+parameters = {
+  effect                   = { value = "Deny" }
+  allowedCapabilities      = { value = [] }
+  requiredDropCapabilities = { value = ["ALL"] }
+}
+```
+
+Type: `any`
 
 Default: `null`
 
